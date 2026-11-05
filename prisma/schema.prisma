@@ -30,13 +30,13 @@ model Product {
   id                String      @id @default(cuid())
   name              String
   slug              String      @unique
-  description       String      @default("") @db.Text
+  description       String      @default("") @db.VarChar(4000)
   price             Int
   unit              String
   stock             Int         @default(0)
   lowStockThreshold Int         @default(5)
-  image             String      @default("") @db.Text
-  keywords          String      @default("") @db.Text
+  image             String      @default("") @db.VarChar(500)
+  keywords          String      @default("") @db.VarChar(1000)
   active            Boolean     @default(true)
   categoryId        String
   category          Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
@@ -54,7 +54,7 @@ model Order {
   customerName    String
   phone           String
   email           String             @default("")
-  notes           String             @default("") @db.Text
+  notes           String             @default("") @db.VarChar(2000)
   fulfillmentType String             @default("pickup")
   pickupDate      String
   pickupSlotStart String
@@ -94,7 +94,7 @@ model OrderStatusEvent {
   id        String   @id @default(cuid())
   orderId   String
   status    String
-  note      String   @default("") @db.Text
+  note      String   @default("") @db.VarChar(1000)
   createdAt DateTime @default(now())
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -104,7 +104,7 @@ model OrderStatusEvent {
 model OrderEdit {
   id        String   @id @default(cuid())
   orderId   String
-  message   String   @db.Text
+  message   String   @db.VarChar(2000)
   createdAt DateTime @default(now())
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -114,10 +114,10 @@ model OrderEdit {
 model StoreSettings {
   id              String   @id @default("default")
   storeName       String
-  address         String   @db.Text
+  address         String   @db.VarChar(500)
   phone           String
   email           String
-  hoursJson       String   @db.Text
+  hoursJson       String   @db.VarChar(2000)
   leadTimeMinutes Int      @default(120)
   slotMinutes     Int      @default(30)
   taxEnabled      Boolean  @default(false)
