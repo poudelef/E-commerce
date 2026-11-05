@@ -1,0 +1,6 @@
+# HTTPS for production. Point the domain's DNS at this machine, then open ports 80 and 443.
+# Caddy requests a free certificate automatically. Replace the hostname before use.
+laxmikirana.example {
+	encode gzip
+	reverse_proxy 127.0.0.1:3000
+}
