@@ -1,0 +1,37 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-LaxmiRoot8kM3}
+      MYSQL_DATABASE: laxmi_kirana
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "127.0.0.1:3307:3306"
+
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: mysql://root:${MYSQL_ROOT_PASSWORD:-LaxmiRoot8kM3}@mysql:3306/laxmi_kirana
+      AUTH_SECRET: ${AUTH_SECRET:-lks_7f3a9c2e1b84d6a0e5f1c8b27d94a6e3f0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5}
+      OWNER_EMAIL: ${OWNER_EMAIL:-owner@laxmikirana.store}
+      OWNER_PASSWORD: ${OWNER_PASSWORD:-LaxmiOwner#2026}
+      OWNER_NAME: ${OWNER_NAME:-Store Owner}
+      NODE_ENV: production
+    volumes:
+      - uploads:/app/public/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  uploads:

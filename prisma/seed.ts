@@ -112,6 +112,14 @@ const products: SeedProduct[] = [
   return { category, name, unit, price, stock, keywords, description, emoji, low };
 });
 
+function ensureProductImages() {
+  fs.mkdirSync(path.join(process.cwd(), "public", "products"), { recursive: true });
+  for (const product of products) {
+    const slug = productSlug(product.name, product.unit);
+    writeImage(slug, product.emoji, tints[product.category] ?? "#F6D48A");
+  }
+}
+
 function writeImage(slug: string, emoji: string, tint: string) {
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
@@ -127,7 +135,7 @@ function productSlug(name: string, unit: string) {
 }
 
 async function seedCatalog() {
-  fs.mkdirSync(path.join(process.cwd(), "public", "products"), { recursive: true });
+  ensureProductImages();
   const names = [...new Set(products.map((product) => product.category))];
   const categories = new Map<string, string>();
   for (const [index, name] of names.entries()) {
@@ -139,7 +147,6 @@ async function seedCatalog() {
 
   for (const product of products) {
     const slug = productSlug(product.name, product.unit);
-    writeImage(slug, product.emoji, tints[product.category] ?? "#F6D48A");
     await prisma.product.create({
       data: {
         name: product.name,
@@ -425,8 +432,10 @@ async function main() {
     });
   }
 
+  ensureProductImages();
   if ((await prisma.product.count()) === 0) await seedCatalog();
-  if ((await prisma.order.count()) === 0) await seedOrders();
+  const sampleOrders = process.env.SEED_SAMPLE_ORDERS === "true" || (process.env.SEED_SAMPLE_ORDERS !== "false" && process.env.NODE_ENV !== "production");
+  if (sampleOrders && (await prisma.order.count()) === 0) await seedOrders();
   console.log(`Owner ready: ${email}`);
 }
 

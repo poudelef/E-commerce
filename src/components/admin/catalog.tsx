@@ -106,7 +106,11 @@ export function ProductsManager() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-extrabold">Products</h1>
         <div className="flex flex-wrap gap-2">
-          <a className={quietButton} href="/api/admin/products/export">Export CSV</a>
+          {/* File download, not an in-app page. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a className={quietButton} href="/api/admin/products/export" download>
+            Export CSV
+          </a>
           <label className={quietButton}>
             Import CSV
             <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(event) => {

@@ -36,10 +36,20 @@ export async function readSession(token: string) {
   };
 }
 
-export const sessionCookieOptions = {
-  httpOnly: true,
-  sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production",
-  path: "/",
-  maxAge: SESSION_MAX_AGE,
-};
+export function cookieIsSecure(request: Request) {
+  if (process.env.COOKIE_SECURE === "true") return true;
+  if (process.env.COOKIE_SECURE === "false") return false;
+  const forwarded = request.headers.get("x-forwarded-proto");
+  if (forwarded) return forwarded.split(",")[0].trim() === "https";
+  return new URL(request.url).protocol === "https:";
+}
+
+export function sessionCookieOptions(secure: boolean) {
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure,
+    path: "/",
+    maxAge: SESSION_MAX_AGE,
+  };
+}

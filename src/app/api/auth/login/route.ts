@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { signSession, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth-token";
+import { cookieIsSecure, signSession, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth-token";
 import { clearLoginFailures, loginBlocked, recordLoginFailure } from "@/lib/rate-limit";
 import { loginSchema, zodError } from "@/lib/validators";
 import { errorResponse, readJson } from "@/lib/api";
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     clearLoginFailures(ipKey);
     const token = await signSession({ sub: user.id, email: user.email, name: user.name });
     const response = NextResponse.json({ ok: true, name: user.name, email: user.email });
-    response.cookies.set(SESSION_COOKIE, token, sessionCookieOptions);
+    response.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(cookieIsSecure(request)));
     return response;
   } catch (error) {
     return errorResponse(error);
